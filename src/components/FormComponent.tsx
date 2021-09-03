@@ -1,24 +1,83 @@
-import React, { ReactNode } from 'react';
-import { useForm } from "react-hook-form";
+import React, { ReactNode, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { createUser as CREATE_USER_MUTATION, createSurvey as CREATE_SURVEY_MUTATION, updateUser as UPDATE_USER_MUTATION } from '../graphql/mutations';
+import { useMutation, gql } from '@apollo/client';
 
 interface FormValues {
     email: string,
     username: string,
     password: string,
     firstName: string,
-    branchNum: number,
     stateOption: string,
     modeOption: string,
 }
 
 const FormComponent = () => {
+    // React-Hook-Form
     const { register, handleSubmit, formState: { errors } } = useForm<FormValues>()
+    const [userId, setUserId] = useState('');
+    const [surveyId, setSurveyId] = useState('');
+
+    // Create User Mutation
+    const [createUser, {data: userData, loading: userLoading, error: userError}] = useMutation(gql(CREATE_USER_MUTATION), {
+        onCompleted: (data) => {
+            setUserId(data.createUser.id);
+            console.log(`On complete createUser Data:`);
+            console.log(data.createUser.id);
+        }
+    });
+    // Create Survey Mutation
+    const [createSurvey, {data: surveyData, loading: surveyLoading, error: surveyError}] = useMutation(gql(CREATE_SURVEY_MUTATION), {
+        onCompleted: (data) => {
+            setSurveyId(data.createSurvey.id);
+            console.log(`On complete createSurvey Data:`);
+            console.log(data.createSurvey.id);
+        }
+    });
+    
+    // Update User w/ created Survey
+    const [updateUser] = useMutation(gql(UPDATE_USER_MUTATION))
 
     return (
         <div style={styles.formComponentWrapper}>
             <form 
                 onSubmit={handleSubmit((data) => {
                     console.log(data);
+                    // Handle Mutations (Create User and Survey)
+                    createUser({
+                        variables: {
+                            input: {
+                                email: data.email,
+                                username: data.username,
+                                password: data.password,
+                                firstName: data.firstName,
+                            }
+                        },
+                    }).then(() =>
+                        createSurvey({
+                            variables: {
+                                input: {
+                                    stateOption: data.stateOption,
+                                    modeOption: data.modeOption,
+                                }
+                            },
+                        }), () => console.log('Error handleSubmit promise 1!')
+                    ).then(() => {
+                        // Assign survey to user w/ mutation
+
+                        // updateUser({
+                        //     // plugin user id to change and survey id to assign
+                        // })
+                        
+                    }, () => console.log("Error handleSubmit promise 2!"))
+
+                    if (userError) {
+                        console.log(`user error: ${userError}`);
+                    }
+
+                    if (surveyError) {
+                        console.log(`survey error ${surveyError}`);
+                    }
                 })} 
                 style={styles.formComponent}
             >
@@ -65,14 +124,6 @@ const FormComponent = () => {
                 <FormInputWrapper>
                     <label htmlFor="firstName">First Name:</label>
                     <input id="firstName" {...register("firstName")}/>
-                </FormInputWrapper>
-
-                <FormInputWrapper>
-                    <label htmlFor="branchNum">Branch Number</label>
-                    <input id="branchNum" {...register("branchNum", { 
-                        valueAsNumber: true,
-                    })}/>
-                    {errors.branchNum && <div>{errors.branchNum.message}</div>}
                 </FormInputWrapper>
 
                 <FormInputWrapper>
