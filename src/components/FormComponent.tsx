@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { createUser as CREATE_USER_MUTATION, createSurvey as CREATE_SURVEY_MUTATION, updateUser as UPDATE_USER_MUTATION } from '../graphql/mutations';
 import { useMutation, gql } from '@apollo/client';
@@ -18,67 +18,85 @@ const FormComponent = () => {
     const [userId, setUserId] = useState('');
     const [surveyId, setSurveyId] = useState('');
 
+    // Holds previous values for change check in useEffect
+    const previousIds = useRef({userId, surveyId});
+
+    useEffect(() => {
+        // Runs if both states has been changed from default
+        if (previousIds.current.userId !== userId && previousIds.current.surveyId !== surveyId) {
+            updateUser({
+                variables: {
+                    input: {
+                        id: userId,
+                        userSurveyResponseId: surveyId
+                    }
+                }
+            });
+
+            setUserId('');
+            setSurveyId('');
+        }
+
+        // updateUser does not alter userId nor surveyId
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[userId, surveyId]);
+
     // Create User Mutation
-    const [createUser, {data: userData, loading: userLoading, error: userError}] = useMutation(gql(CREATE_USER_MUTATION), {
+    const [createUser, {error: userError}] = useMutation(gql(CREATE_USER_MUTATION), {
+        // Update state after receiving data
         onCompleted: (data) => {
             setUserId(data.createUser.id);
-            console.log(`On complete createUser Data:`);
-            console.log(data.createUser.id);
         }
     });
+
     // Create Survey Mutation
-    const [createSurvey, {data: surveyData, loading: surveyLoading, error: surveyError}] = useMutation(gql(CREATE_SURVEY_MUTATION), {
+    const [createSurvey, {error: surveyError}] = useMutation(gql(CREATE_SURVEY_MUTATION), {
+        // Update state after receiving data
         onCompleted: (data) => {
             setSurveyId(data.createSurvey.id);
-            console.log(`On complete createSurvey Data:`);
-            console.log(data.createSurvey.id);
         }
     });
     
-    // Update User w/ created Survey
-    const [updateUser] = useMutation(gql(UPDATE_USER_MUTATION))
+    // Update Created User w/ created Survey relation
+    const [updateUser] = useMutation(gql(UPDATE_USER_MUTATION));
+
+    // Create User and Survey from form Data
+    const handleSubmitMutations = (data: any) => {
+        createUser({
+            variables: {
+                input: {
+                    email: data.email,
+                    username: data.username,
+                    password: data.password,
+                    firstName: data.firstName,
+                }
+            },
+        }).then(() =>
+            createSurvey({
+                variables: {
+                    input: {
+                        stateOption: data.stateOption,
+                        modeOption: data.modeOption,
+                    }
+                },
+            }), () => console.log('Error handleSubmit promise 1!')
+        )
+
+        if (userError) {
+            console.log(`user error: ${userError}`);
+        }
+
+        if (surveyError) {
+            console.log(`survey error ${surveyError}`);
+        }
+    }
 
     return (
         <div style={styles.formComponentWrapper}>
             <form 
                 onSubmit={handleSubmit((data) => {
-                    console.log(data);
-                    // Handle Mutations (Create User and Survey)
-                    createUser({
-                        variables: {
-                            input: {
-                                email: data.email,
-                                username: data.username,
-                                password: data.password,
-                                firstName: data.firstName,
-                            }
-                        },
-                    }).then(() =>
-                        createSurvey({
-                            variables: {
-                                input: {
-                                    stateOption: data.stateOption,
-                                    modeOption: data.modeOption,
-                                }
-                            },
-                        }), () => console.log('Error handleSubmit promise 1!')
-                    ).then(() => {
-                        // Assign survey to user w/ mutation
-
-                        // updateUser({
-                        //     // plugin user id to change and survey id to assign
-                        // })
-                        
-                    }, () => console.log("Error handleSubmit promise 2!"))
-
-                    if (userError) {
-                        console.log(`user error: ${userError}`);
-                    }
-
-                    if (surveyError) {
-                        console.log(`survey error ${surveyError}`);
-                    }
-                })} 
+                    handleSubmitMutations(data);
+                })}
                 style={styles.formComponent}
             >
                 <FormInputWrapper>

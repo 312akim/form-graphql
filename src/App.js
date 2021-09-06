@@ -1,6 +1,6 @@
 import './App.css';
 import FormComponent from './components/FormComponent';
-import { ApolloClient, InMemoryCache, ApolloProvider, HttpLink, from } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client';
 import gql from 'graphql-tag';
 import AWSAppSyncClient, { AUTH_TYPE } from 'aws-appsync';
 import aws_config from './aws-exports';
@@ -13,8 +13,7 @@ const client = new AWSAppSyncClient({
     auth: {
         type: AUTH_TYPE.API_KEY,
         apiKey: aws_config.aws_appsync_apiKey,
-    },
-    disableOffline: true
+    }
 });
 
 // Test Data
