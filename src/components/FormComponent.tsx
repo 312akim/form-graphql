@@ -59,9 +59,10 @@ const FormComponent = () => {
     
     // Update Created User w/ created Survey relation
     const [updateUser] = useMutation(gql(UPDATE_USER_MUTATION));
-
+    
     // Create User and Survey from form Data
-    const handleSubmitMutations = (data: any) => {
+    const handleSubmitMutations = (data: FormValues) => {
+        console.log(data);
         createUser({
             variables: {
                 input: {
