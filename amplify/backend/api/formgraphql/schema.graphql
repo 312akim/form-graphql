@@ -1,11 +1,11 @@
 type Survey @model {
-  id: ID!
+  id: ID
   stateOption: String!
   modeOption: String!
 }
 
 type User @model {
-  id: ID!
+  id: ID
   email: String!
   username: String!
   password: String!

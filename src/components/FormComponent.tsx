@@ -1,25 +1,103 @@
-import React, { ReactNode } from 'react';
-import { useForm } from "react-hook-form";
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { createUser as CREATE_USER_MUTATION, createSurvey as CREATE_SURVEY_MUTATION, updateUser as UPDATE_USER_MUTATION } from '../graphql/mutations';
+import { useMutation, gql } from '@apollo/client';
 
 interface FormValues {
     email: string,
     username: string,
     password: string,
     firstName: string,
-    branchNum: number,
     stateOption: string,
     modeOption: string,
 }
 
 const FormComponent = () => {
+    // React-Hook-Form
     const { register, handleSubmit, formState: { errors } } = useForm<FormValues>()
+    const [userId, setUserId] = useState('');
+    const [surveyId, setSurveyId] = useState('');
+
+    // Holds previous values for change check in useEffect
+    const previousIds = useRef({userId, surveyId});
+
+    useEffect(() => {
+        // Runs if both states has been changed from default
+        if (previousIds.current.userId !== userId && previousIds.current.surveyId !== surveyId) {
+            updateUser({
+                variables: {
+                    input: {
+                        id: userId,
+                        userSurveyResponseId: surveyId
+                    }
+                }
+            });
+
+            setUserId('');
+            setSurveyId('');
+        }
+
+        // updateUser does not alter userId nor surveyId
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[userId, surveyId]);
+
+    // Create User Mutation
+    const [createUser, {error: userError}] = useMutation(gql(CREATE_USER_MUTATION), {
+        // Update state after receiving data
+        onCompleted: (data) => {
+            setUserId(data.createUser.id);
+        }
+    });
+
+    // Create Survey Mutation
+    const [createSurvey, {error: surveyError}] = useMutation(gql(CREATE_SURVEY_MUTATION), {
+        // Update state after receiving data
+        onCompleted: (data) => {
+            setSurveyId(data.createSurvey.id);
+        }
+    });
+    
+    // Update Created User w/ created Survey relation
+    const [updateUser] = useMutation(gql(UPDATE_USER_MUTATION));
+    
+    // Create User and Survey from form Data
+    const handleSubmitMutations = (data: FormValues) => {
+        console.log(data);
+        createUser({
+            variables: {
+                input: {
+                    email: data.email,
+                    username: data.username,
+                    password: data.password,
+                    firstName: data.firstName,
+                }
+            },
+        }).then(() =>
+            createSurvey({
+                variables: {
+                    input: {
+                        stateOption: data.stateOption,
+                        modeOption: data.modeOption,
+                    }
+                },
+            }), () => console.log('Error handleSubmit promise 1!')
+        )
+
+        if (userError) {
+            console.log(`user error: ${userError}`);
+        }
+
+        if (surveyError) {
+            console.log(`survey error ${surveyError}`);
+        }
+    }
 
     return (
         <div style={styles.formComponentWrapper}>
             <form 
                 onSubmit={handleSubmit((data) => {
-                    console.log(data);
-                })} 
+                    handleSubmitMutations(data);
+                })}
                 style={styles.formComponent}
             >
                 <FormInputWrapper>
@@ -65,14 +143,6 @@ const FormComponent = () => {
                 <FormInputWrapper>
                     <label htmlFor="firstName">First Name:</label>
                     <input id="firstName" {...register("firstName")}/>
-                </FormInputWrapper>
-
-                <FormInputWrapper>
-                    <label htmlFor="branchNum">Branch Number</label>
-                    <input id="branchNum" {...register("branchNum", { 
-                        valueAsNumber: true,
-                    })}/>
-                    {errors.branchNum && <div>{errors.branchNum.message}</div>}
                 </FormInputWrapper>
 
                 <FormInputWrapper>
