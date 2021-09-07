@@ -1,0 +1,14 @@
+type Survey @model {
+  id: ID!
+  stateOption: String!
+  modeOption: String!
+}
+
+type User @model {
+  id: ID!
+  email: String!
+  username: String!
+  password: String!
+  firstName: String!
+  surveyResponse: Survey @connection
+}

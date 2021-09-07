@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-formgraphql-dev-223441-authRole",
+      "UnauthRoleArn": "arn:aws:iam::159944019615:role/amplify-formgraphql-dev-223441-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::159944019615:role/amplify-formgraphql-dev-223441-authRole",
+      "Region": "us-west-2",
+      "DeploymentBucketName": "amplify-formgraphql-dev-223441-deployment",
+      "UnauthRoleName": "amplify-formgraphql-dev-223441-unauthRole",
+      "StackName": "amplify-formgraphql-dev-223441",
+      "StackId": "arn:aws:cloudformation:us-west-2:159944019615:stack/amplify-formgraphql-dev-223441/4f9feec0-0ae6-11ec-abbc-069cf0f326d7",
+      "AmplifyAppId": "d20dghqun03lnd"
+    }
+  }
+}
