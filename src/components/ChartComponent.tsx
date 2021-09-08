@@ -50,6 +50,11 @@ function ChartComponent() {
     // On pie segment click
     const onSegmentClickHandler = (e: React.MouseEvent<Element, MouseEvent>, index: number) => {
         setSelectedIndex(index);
+
+        // Clicking same segment as selected resets to default
+        if (index === selectedIndex) {
+            setSelectedIndex(99);
+        }
     }
 
     // Returns percent total & value of survey response

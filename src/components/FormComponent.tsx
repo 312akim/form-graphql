@@ -1,4 +1,5 @@
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { createUser as CREATE_USER_MUTATION, createSurvey as CREATE_SURVEY_MUTATION, updateUser as UPDATE_USER_MUTATION } from '../graphql/mutations';
 import { useMutation, gql } from '@apollo/client';
@@ -14,7 +15,8 @@ interface FormValues {
 
 const FormComponent = () => {
     // React-Hook-Form
-    const { register, handleSubmit, formState: { errors } } = useForm<FormValues>()
+    // Optional mode: 'all' for live validation prior to form submission 
+    const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({mode: 'all'})
     const [userId, setUserId] = useState('');
     const [surveyId, setSurveyId] = useState('');
 
@@ -42,7 +44,7 @@ const FormComponent = () => {
     },[userId, surveyId]);
 
     // Create User Mutation
-    const [createUser, {error: userError}] = useMutation(gql(CREATE_USER_MUTATION), {
+    const [createUser, {loading: userLoading, error: userError}] = useMutation(gql(CREATE_USER_MUTATION), {
         // Update state after receiving data
         onCompleted: (data) => {
             setUserId(data.createUser.id);
@@ -50,7 +52,7 @@ const FormComponent = () => {
     });
 
     // Create Survey Mutation
-    const [createSurvey, {error: surveyError}] = useMutation(gql(CREATE_SURVEY_MUTATION), {
+    const [createSurvey, {loading: surveyLoading, error: surveyError}] = useMutation(gql(CREATE_SURVEY_MUTATION), {
         // Update state after receiving data
         onCompleted: (data) => {
             setSurveyId(data.createSurvey.id);
@@ -93,89 +95,96 @@ const FormComponent = () => {
 
     return (
         <div style={styles.formComponentWrapper}>
-            <form 
-                onSubmit={handleSubmit((data) => {
-                    handleSubmitMutations(data);
-                })}
-                style={styles.formComponent}
-            >
-                <FormInputWrapper>
-                    <label htmlFor="email">Email Address:</label>
-                    <input id="email" {...register("email", {
-                        required: "Required",
-                        minLength: {
-                            value: 3,
-                            message: "Min 3 characters"
+            {
+                userLoading || surveyLoading ? <div style={{...styles.formComponent, alignItems: 'center', fontSize: '24px'}}>Sending...</div> :
+                <form 
+                    onSubmit={handleSubmit((data) => {
+                        handleSubmitMutations(data);
+                    })}
+                    style={styles.formComponent}
+                >
+                    <FormInputWrapper>
+                        <label htmlFor="email">Email Address:</label>
+                        <input id="email" {...register("email", {
+                            required: "Required",
+                            minLength: {
+                                value: 3,
+                                message: "Min 3 characters"
+                            },
+                            pattern: {
+                                value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                                message: 'Please enter a valid email',
+                            },
+                        })}/>
+                        {errors.email ? <div style={styles.formErrorText}>{errors.email.message}</div> : <div style={styles.formErrorText}/>}
+                    </FormInputWrapper>
+
+                    <FormInputWrapper>
+                        <label htmlFor="username">Username:</label>
+                        <input id="username" {...register("username", { 
+                            required: true,
+                            minLength: {
+                                value: 3,
+                                message: "Min 3 characters"
+                            }
+                        })}/>
+                        {errors.username ? <div style={styles.formErrorText}>{errors.username.message}</div> : <div style={styles.formErrorText}/>}
+                    </FormInputWrapper>
+
+                    <FormInputWrapper>
+                        <label htmlFor="password">Password:</label>
+                        <input id="password" {...register("password", { 
+                            required: "Required", 
+                            maxLength: {
+                                value: 12,
+                                message: "Max 12 characters"
+                            },
+                            minLength: {
+                                value: 6,
+                                message: "Min 6 characters"
+                            }
+                        })}/>
+                        {errors.password ? <div style={styles.formErrorText}>{errors.password.message}</div> : <div style={styles.formErrorText}/>}
+                    </FormInputWrapper>
+
+                    <FormInputWrapper>
+                        <label htmlFor="firstName">First Name:</label>
+                        <input id="firstName" {...register("firstName")}/>
+                    </FormInputWrapper>
+
+                    <FormInputWrapper>
+                        <label htmlFor="stateOption">Favorite State Manager</label>
+                        <select {...register("stateOption", {
+                            required: "Selection Required"
                         }
-                    })}/>
-                    {errors.email && <div>{errors.email.message}</div>}
-                </FormInputWrapper>
+                        )} id="stateOption">
+                            <option value="">Make a selection</option>
+                            <option value="context">Context</option>
+                            <option value="redux">Redux</option>
+                            <option value="mobx">MobX</option>
+                            <option value="recoil">Recoil</option>
+                            <option value="other">Other</option>
+                        </select>
+                        {errors.stateOption ? <div style={styles.formErrorText}>{errors.stateOption.message}</div> : <div style={styles.formErrorText}/>}
+                    </FormInputWrapper>
 
-                <FormInputWrapper>
-                    <label htmlFor="username">Username:</label>
-                    <input id="username" {...register("username", { 
-                        required: true,
-                        minLength: {
-                            value: 3,
-                            message: "Min 3 characters"
-                        }
-                    })}/>
-                    {errors.username && <div>{errors.username.message}</div>}
-                </FormInputWrapper>
-
-                <FormInputWrapper>
-                    <label htmlFor="password">Password:</label>
-                    <input id="password" {...register("password", { 
-                        required: "Required", 
-                        maxLength: {
-                            value: 12,
-                            message: "Max 12 characters"
-                        },
-                        minLength: {
-                            value: 6,
-                            message: "Min 6 characters"
-                        }
-                    })}/>
-                    {errors.password && <div>{errors.password.message}</div>}
-                </FormInputWrapper>
-
-                <FormInputWrapper>
-                    <label htmlFor="firstName">First Name:</label>
-                    <input id="firstName" {...register("firstName")}/>
-                </FormInputWrapper>
-
-                <FormInputWrapper>
-                    <label htmlFor="stateOption">Favorite State Manager</label>
-                    <select {...register("stateOption", {
-                        required: "Selection Required"
-                    }
-                    )} id="stateOption">
-                        <option value="">Make a selection</option>
-                        <option value="context">Context</option>
-                        <option value="redux">Redux</option>
-                        <option value="mobx">MobX</option>
-                        <option value="recoil">Recoil</option>
-                        <option value="other">Other</option>
-                    </select>
-                    {errors.stateOption && <div>{errors.stateOption.message}</div>}
-                </FormInputWrapper>
-
-                <FormInputWrapper>
-                    <label  htmlFor="modeOption">Light or Dark Mode?</label>
-                    <select {...register("modeOption", {
-                        required: "Selection Required"
-                    })} id="modeOption">
-                        <option value="">Make a selection</option>
-                        <option value="light">Light!</option>
-                        <option value="dark">Dark!</option>
-                    </select>
-                    {errors.modeOption && <div>{errors.modeOption.message}</div>}
-                </FormInputWrapper>
-
-                <FormInputWrapper>
-                    <input type="Submit"></input>
-                </FormInputWrapper>
-            </form>
+                    <FormInputWrapper>
+                        <label htmlFor="modeOption">Light or Dark Mode?</label>
+                        <select {...register("modeOption", {
+                            required: "Selection Required"
+                        })} id="modeOption">
+                            <option value="">Make a selection</option>
+                            <option value="light">Light!</option>
+                            <option value="dark">Dark!</option>
+                        </select>
+                        {errors.modeOption ? <div style={styles.formErrorText}>{errors.modeOption.message}</div> : <div style={styles.formErrorText}/>}
+                    </FormInputWrapper>
+                    <div style={styles.formButtonContainer}>
+                        <StyledFormButton type="reset">Reset</StyledFormButton>
+                        <StyledFormButton type="submit">Submit</StyledFormButton>    
+                    </div>
+                </form>
+            }
         </div>
     )
 }
@@ -198,11 +207,13 @@ const styles = {
         flexDirection: 'column' as const,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: '20px'
+        marginRight: '20px',
     },
     formComponent: {
         display: 'flex',
         flexDirection: 'column' as const,
+        justifyContent: 'space-around',
+        height: '500px',
         width: '343px',
         marginTop: '150px',
         padding: '25px',
@@ -217,6 +228,36 @@ const styles = {
         flexDirection: 'column' as const,
         margin: '8px',
     },
+    formErrorText: {
+        height: '12px'
+    },
+    formButton: {
+        height: '30px',
+        width: '40%',
+        margin: '8px',
+        background: 'white',
+    },
+    formButtonContainer: {
+        display: 'flex',
+        flexDirection: 'row' as const,
+        justifyContent: 'space-between',
+        marginBottom: '15px'
+    }
 }
+
+const StyledFormButton = styled.button`
+    height: 30px;
+    width: 40%;
+    margin: 8px;
+    background: lavender;
+    border: 1px solid white;
+    box-shadow: 2px 2px 2px black;
+    font-size: 14px;
+    font-weight: bold;
+    :hover {
+        background: white;
+        border: 1px solid lavender;
+    }
+`
 
 export default FormComponent;
