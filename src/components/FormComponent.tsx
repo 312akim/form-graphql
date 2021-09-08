@@ -62,7 +62,6 @@ const FormComponent = () => {
     
     // Create User and Survey from form Data
     const handleSubmitMutations = (data: FormValues) => {
-        console.log(data);
         createUser({
             variables: {
                 input: {
@@ -199,12 +198,12 @@ const styles = {
         flexDirection: 'column' as const,
         justifyContent: 'center',
         alignItems: 'center',
+        marginRight: '20px'
     },
     formComponent: {
         display: 'flex',
         flexDirection: 'column' as const,
-        maxWidth: '400px',
-        minWidth: '323px',
+        width: '343px',
         marginTop: '150px',
         padding: '25px',
         backgroundColor: 'lightblue',
