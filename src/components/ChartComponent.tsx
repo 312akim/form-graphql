@@ -3,10 +3,15 @@ import { PieChart } from 'react-minimal-pie-chart';
 import { useQuery, gql } from '@apollo/client';
 import { listSurveys } from '../graphql/queries';
 
+interface SurveyData {
+    modeOption: string
+    stateOption: string
+}
+
 function ChartComponent() {
-    // Queries all surveys every 5 seconds
+    // Queries all surveys every pollInterval milliseconds
     const { loading, error, data } = useQuery(gql(listSurveys), {
-        pollInterval: 5000
+        pollInterval: 2000
     });
 
     // State
@@ -18,25 +23,33 @@ function ChartComponent() {
     const [recoilCount, setRecoilCount] = useState(0);
     const [otherCount, setOtherCount] = useState(0);
 
-    // Once data received, update States
+    const [selectedIndex, setSelectedIndex] = useState(99);
+
+    // Once data received, update States if any values changed
     useEffect(() => {
         if (!loading) {
-            setLightCount(data.listSurveys.items.filter((obj: any) => obj.modeOption === 'light').length);
-            setDarkCount(data.listSurveys.items.filter((obj: any) => obj.modeOption === 'dark').length);
-            setContextCount(data.listSurveys.items.filter((obj: any) => obj.stateOption === 'context').length);
-            setReduxCount(data.listSurveys.items.filter((obj: any) => obj.stateOption === 'redux').length);
-            setMobxCount(data.listSurveys.items.filter((obj: any) => obj.stateOption === 'mobx').length);
-            setRecoilCount(data.listSurveys.items.filter((obj: any) => obj.stateOption === 'recoil').length);
-            setOtherCount(data.listSurveys.items.filter((obj: any) => obj.stateOption === 'other').length);
+            setLightCount(data.listSurveys.items.filter((obj: SurveyData) => obj.modeOption === 'light').length);
+            setDarkCount(data.listSurveys.items.filter((obj: SurveyData) => obj.modeOption === 'dark').length);
+
+            setContextCount(data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'context').length);
+            setReduxCount(data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'redux').length);
+            setMobxCount(data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'mobx').length);
+            setRecoilCount(data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'recoil').length);
+            setOtherCount(data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'other').length);
         }
     }, [lightCount, darkCount, contextCount, reduxCount, mobxCount, recoilCount, otherCount, loading, data])
+
+    const onSegmentClickHandler = (e: React.MouseEvent<Element, MouseEvent>, index: number) => {
+        setSelectedIndex(index);
+    }
 
     return (
         <div style={styles.chartContainer}>
             {
+                error ? <div>Error getting data..</div> :
                 loading ? <div>Loading..</div> :
                 <>
-                    <h2>State Survey Results</h2>
+                    <h2>State Preference Survey Results</h2>
                     <PieChart
                         style={{
                             overflow: 'visible',
@@ -45,33 +58,37 @@ function ChartComponent() {
                         
                         data={[
                             {
-                                title: 'Redux',
+                                title: selectedIndex === 0 ? reduxCount : 'Redux',
                                 value: reduxCount,
                                 color: 'red'
                             }, 
                             {
-                                title: 'MobX',
+                                title: selectedIndex === 1 ? mobxCount : 'MobX',
                                 value: mobxCount,
                                 color: 'blue'
                             }, 
                             {
-                                title: 'Context',
+                                title: selectedIndex === 2 ? contextCount : 'Context',
                                 value: contextCount,
                                 color: 'yellow'
                             },
                             {
-                                title: 'Recoil',
+                                title: selectedIndex === 3 ? recoilCount : 'Recoil',
                                 value: recoilCount,
                                 color: 'green'
                             },
                             {
-                                title: 'Other',
+                                title: selectedIndex === 4 ? otherCount : 'Other',
                                 value: otherCount,
                                 color: 'orange'
                             }
                         ]}
+
+                        onClick={(e, segmentIndex) => onSegmentClickHandler(e, segmentIndex)}
+
                         label={({dataEntry}) => `${dataEntry.title}`}
-                        segmentsShift={(index)=> index === 0 ? 3.5 : 0}
+                        labelPosition={110}
+                        segmentsShift={(index) => index === selectedIndex ? 5 : 0}
                         labelStyle={{...defaultLabelStyle}}
                         lineWidth={40}
                         animate={true}
@@ -84,12 +101,17 @@ function ChartComponent() {
 
 const defaultLabelStyle = {
     fontSize: '5px',
-    fontFamily: 'sans-serif'
+    fontFamily: 'sans-serif',
 }
 
 const styles = {
     chartContainer: {
-        width: '343px',
+        display: 'flex',
+        flexDirection: 'column' as const,
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '500px',
+        width: '500px',
         marginTop: '150px',
         marginLeft: '20px',
         padding: '25px',
