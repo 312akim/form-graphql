@@ -205,7 +205,7 @@ const styles = {
         flexDirection: 'column' as const,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: '20px'
+        marginRight: '20px',
     },
     formComponent: {
         display: 'flex',
