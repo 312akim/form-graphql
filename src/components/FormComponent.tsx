@@ -14,7 +14,8 @@ interface FormValues {
 
 const FormComponent = () => {
     // React-Hook-Form
-    const { register, handleSubmit, formState: { errors } } = useForm<FormValues>()
+    // Optional mode: 'all' for live validation prior to form submission 
+    const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({mode: 'all'})
     const [userId, setUserId] = useState('');
     const [surveyId, setSurveyId] = useState('');
 
@@ -108,9 +109,13 @@ const FormComponent = () => {
                             minLength: {
                                 value: 3,
                                 message: "Min 3 characters"
-                            }
+                            },
+                            pattern: {
+                                value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                                message: 'Please enter a valid email',
+                            },
                         })}/>
-                        {errors.email && <div>{errors.email.message}</div>}
+                        {errors.email ? <div style={styles.formErrorText}>{errors.email.message}</div> : <div style={styles.formErrorText}/>}
                     </FormInputWrapper>
 
                     <FormInputWrapper>
@@ -122,7 +127,7 @@ const FormComponent = () => {
                                 message: "Min 3 characters"
                             }
                         })}/>
-                        {errors.username && <div>{errors.username.message}</div>}
+                        {errors.username ? <div style={styles.formErrorText}>{errors.username.message}</div> : <div style={styles.formErrorText}/>}
                     </FormInputWrapper>
 
                     <FormInputWrapper>
@@ -138,7 +143,7 @@ const FormComponent = () => {
                                 message: "Min 6 characters"
                             }
                         })}/>
-                        {errors.password && <div>{errors.password.message}</div>}
+                        {errors.password ? <div style={styles.formErrorText}>{errors.password.message}</div> : <div style={styles.formErrorText}/>}
                     </FormInputWrapper>
 
                     <FormInputWrapper>
@@ -159,7 +164,7 @@ const FormComponent = () => {
                             <option value="recoil">Recoil</option>
                             <option value="other">Other</option>
                         </select>
-                        {errors.stateOption && <div>{errors.stateOption.message}</div>}
+                        {errors.stateOption ? <div style={styles.formErrorText}>{errors.stateOption.message}</div> : <div style={styles.formErrorText}/>}
                     </FormInputWrapper>
 
                     <FormInputWrapper>
@@ -171,7 +176,7 @@ const FormComponent = () => {
                             <option value="light">Light!</option>
                             <option value="dark">Dark!</option>
                         </select>
-                        {errors.modeOption && <div>{errors.modeOption.message}</div>}
+                        {errors.modeOption ? <div style={styles.formErrorText}>{errors.modeOption.message}</div> : <div style={styles.formErrorText}/>}
                     </FormInputWrapper>
 
                     <FormInputWrapper> 
@@ -225,6 +230,9 @@ const styles = {
         display: 'flex',
         flexDirection: 'column' as const,
         margin: '8px',
+    },
+    formErrorText: {
+        height: '12px'
     },
 }
 
