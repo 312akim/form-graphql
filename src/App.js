@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { createAuthLink } from 'aws-appsync-auth-link';
 import { createSubscriptionHandshakeLink } from 'aws-appsync-subscription-link';
@@ -26,10 +27,16 @@ const client = new ApolloClient({
 })
 
 function App() {
+  const [colorTheme, setColorTheme] = useState(false);
+
+  const onColorThemeChange = (value) => {
+    setColorTheme(value);
+  }
+
   return (
     <ApolloProvider client={client}>
-      <div style={styles.appContainer}>
-        <FormComponent />
+      <div style={{...styles.appContainer, ...{background: colorTheme ? '#202020' : 'white'}}}>
+        <FormComponent handleColorTheme={onColorThemeChange}/>
         <ChartComponent />
       </div>
     </ApolloProvider>
@@ -43,7 +50,7 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    marginBottom: '150px'
+    padding: '0 0 150px 0'
   }
 }
 

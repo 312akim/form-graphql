@@ -13,7 +13,7 @@ interface FormValues {
     modeOption: string,
 }
 
-const FormComponent = () => {
+const FormComponent = ({handleColorTheme}: any) => {
     // React-Hook-Form
     // Optional mode: 'all' for live validation prior to form submission 
     const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({mode: 'all'})
@@ -172,7 +172,14 @@ const FormComponent = () => {
                         <label htmlFor="modeOption">Light or Dark Mode?</label>
                         <select {...register("modeOption", {
                             required: "Selection Required"
-                        })} id="modeOption">
+                        })} id="modeOption" onChange={(e) => {
+                            if (e.target.value === 'dark') {
+                                handleColorTheme(true) 
+                            } else if (e.target.value === 'light') {
+                                handleColorTheme(false)
+                            }
+                            return;
+                        }}>
                             <option value="">Make a selection</option>
                             <option value="light">Light!</option>
                             <option value="dark">Dark!</option>
