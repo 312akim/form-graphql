@@ -1,4 +1,5 @@
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { createUser as CREATE_USER_MUTATION, createSurvey as CREATE_SURVEY_MUTATION, updateUser as UPDATE_USER_MUTATION } from '../graphql/mutations';
 import { useMutation, gql } from '@apollo/client';
@@ -178,14 +179,10 @@ const FormComponent = () => {
                         </select>
                         {errors.modeOption ? <div style={styles.formErrorText}>{errors.modeOption.message}</div> : <div style={styles.formErrorText}/>}
                     </FormInputWrapper>
-
-                    <FormInputWrapper> 
-                        <input type="reset" />
-                    </FormInputWrapper>
-
-                    <FormInputWrapper>
-                        <input type="Submit"></input>
-                    </FormInputWrapper>
+                    <div style={styles.formButtonContainer}>
+                        <StyledFormButton type="reset">Reset</StyledFormButton>
+                        <StyledFormButton type="submit">Submit</StyledFormButton>    
+                    </div>
                 </form>
             }
         </div>
@@ -234,6 +231,33 @@ const styles = {
     formErrorText: {
         height: '12px'
     },
+    formButton: {
+        height: '30px',
+        width: '40%',
+        margin: '8px',
+        background: 'white',
+    },
+    formButtonContainer: {
+        display: 'flex',
+        flexDirection: 'row' as const,
+        justifyContent: 'space-between',
+        marginBottom: '15px'
+    }
 }
+
+const StyledFormButton = styled.button`
+    height: 30px;
+    width: 40%;
+    margin: 8px;
+    background: lavender;
+    border: 1px solid white;
+    box-shadow: 2px 2px 2px black;
+    font-size: 14px;
+    font-weight: bold;
+    :hover {
+        background: white;
+        border: 1px solid lavender;
+    }
+`
 
 export default FormComponent;
