@@ -14,33 +14,48 @@ function ChartComponent() {
         pollInterval: 2000
     });
 
-    // State
-    const [lightCount, setLightCount] = useState(0);
-    const [darkCount, setDarkCount] = useState(0);
-    const [contextCount, setContextCount] = useState(0);
-    const [reduxCount, setReduxCount] = useState(0);
-    const [mobxCount, setMobxCount] = useState(0);
-    const [recoilCount, setRecoilCount] = useState(0);
-    const [otherCount, setOtherCount] = useState(0);
+    // Survey Value States
+    const [surveyState, setSurveyState] = useState({
+        lightCount: 0,
+        darkCount: 0,
+        contextCount: 0,
+        reduxCount: 0,
+        mobxCount: 0,
+        recoilCount: 0,
+        otherCount: 0,
+    })
+    // Destructured
+    const {contextCount, reduxCount, mobxCount, recoilCount, otherCount} = surveyState;
 
+    // Clicked segment state tracker
     const [selectedIndex, setSelectedIndex] = useState(99);
 
-    // Once data received, update States if any values changed
+    // Once data received, updates State if any values changed
+    // Filters surveys for number of response answers
     useEffect(() => {
         if (!loading) {
-            setLightCount(data.listSurveys.items.filter((obj: SurveyData) => obj.modeOption === 'light').length);
-            setDarkCount(data.listSurveys.items.filter((obj: SurveyData) => obj.modeOption === 'dark').length);
-
-            setContextCount(data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'context').length);
-            setReduxCount(data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'redux').length);
-            setMobxCount(data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'mobx').length);
-            setRecoilCount(data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'recoil').length);
-            setOtherCount(data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'other').length);
+            setSurveyState((prevState) => ({
+                ...prevState, 
+                lightCount: data.listSurveys.items.filter((obj: SurveyData) => obj.modeOption === 'light').length,
+                darkCount: data.listSurveys.items.filter((obj: SurveyData) => obj.modeOption === 'dark').length,
+                contextCount: data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'context').length,
+                reduxCount: data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'redux').length,
+                mobxCount: data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'mobx').length,
+                recoilCount: data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'recoil').length,
+                otherCount: data.listSurveys.items.filter((obj: SurveyData) => obj.stateOption === 'other').length,
+            }));
         }
-    }, [lightCount, darkCount, contextCount, reduxCount, mobxCount, recoilCount, otherCount, loading, data])
+    }, [loading, data])
 
+    // On pie segment click
     const onSegmentClickHandler = (e: React.MouseEvent<Element, MouseEvent>, index: number) => {
         setSelectedIndex(index);
+    }
+
+    // Returns percent total & value of survey response
+    const calculateSegmentDisplay = (stateCount: number) => {
+        const stateSurveyTotal = contextCount + reduxCount + mobxCount + recoilCount + otherCount;
+        return `${(stateCount / stateSurveyTotal * 100).toFixed(2)}% (${stateCount})`
     }
 
     return (
@@ -56,36 +71,36 @@ function ChartComponent() {
                             maxWidth: '343px',
                         }}
                         
+                        // If segment is selected, display number value of survey
                         data={[
                             {
-                                title: selectedIndex === 0 ? reduxCount : 'Redux',
+                                title: selectedIndex === 0 ? calculateSegmentDisplay(reduxCount) : 'Redux',
                                 value: reduxCount,
                                 color: 'red'
                             }, 
                             {
-                                title: selectedIndex === 1 ? mobxCount : 'MobX',
+                                title: selectedIndex === 1 ? calculateSegmentDisplay(mobxCount) : 'MobX',
                                 value: mobxCount,
                                 color: 'blue'
                             }, 
                             {
-                                title: selectedIndex === 2 ? contextCount : 'Context',
+                                title: selectedIndex === 2 ? calculateSegmentDisplay(contextCount) : 'Context',
                                 value: contextCount,
                                 color: 'yellow'
                             },
                             {
-                                title: selectedIndex === 3 ? recoilCount : 'Recoil',
+                                title: selectedIndex === 3 ? calculateSegmentDisplay(recoilCount) : 'Recoil',
                                 value: recoilCount,
                                 color: 'green'
                             },
                             {
-                                title: selectedIndex === 4 ? otherCount : 'Other',
+                                title: selectedIndex === 4 ? calculateSegmentDisplay(otherCount) : 'Other',
                                 value: otherCount,
                                 color: 'orange'
                             }
                         ]}
 
                         onClick={(e, segmentIndex) => onSegmentClickHandler(e, segmentIndex)}
-
                         label={({dataEntry}) => `${dataEntry.title}`}
                         labelPosition={110}
                         segmentsShift={(index) => index === selectedIndex ? 5 : 0}
