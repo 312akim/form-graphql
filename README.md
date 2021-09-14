@@ -9,9 +9,13 @@ The website displays a form that takes in a user survey input and updates the pi
 # Tech
 
 -React Hook Form
+
 -Apollo GraphQL
+
 -AWS Amplify
+
 -React Minimal Pie Chart
+
 -Redux (Ongoing)
 
 # Getting Started with Create React App
