@@ -18,6 +18,10 @@ The website displays a form that takes in a user survey input and updates the pi
 
 -Redux (Ongoing)
 
+-TypeScript
+
+-Styled Components
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
