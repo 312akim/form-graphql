@@ -115,6 +115,9 @@ function ChartComponent() {
                     />
                 </>
             }
+            <div>
+                Click a pie segment for numeric data!
+            </div>
         </div>
     );
 }
@@ -131,9 +134,9 @@ const styles = {
         justifyContent: 'center',
         alignItems: 'center',
         height: '500px',
-        width: '500px',
-        marginTop: '150px',
-        marginLeft: '20px',
+        width: window.matchMedia(`(min-width: 400px)`).matches ? '440px' : '273px',
+        marginTop: '100px',
+        marginLeft: window.matchMedia(`(min-width: 800px)`).matches ? '20px' : '0',
         padding: '25px',
         background: 'lightblue',
         borderRadius: '8px',

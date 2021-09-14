@@ -46,9 +46,10 @@ function App() {
 const styles = {
   appContainer: {
     display: 'flex',
-    flexDirection: window.matchMedia(`(min-width: 400px)`).matches ? 'row' : 'column',
+    flexDirection: window.matchMedia(`(min-width: 800px)`).matches ? 'row' : 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    minHeight: '100vh',
     width: '100%',
     padding: '0 0 150px 0'
   }
