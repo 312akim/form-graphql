@@ -1,3 +1,19 @@
+# Website Sample Page
+
+https://master.d20dghqun03lnd.amplifyapp.com/
+
+# Summary
+
+The website displays a form that takes in a user survey input and updates the pie chart with the updated data every 2 seconds if there were any changes. Each slice of the pie chart is clickable to display the response percentage and the number of responses for the particular slice.
+
+# Tech
+
+-React Hook Form
+-Apollo GraphQL
+-AWS Amplify
+-React Minimal Pie Chart
+-Redux (Ongoing)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
