@@ -96,6 +96,7 @@ const FormComponent = ({handleColorTheme}: any) => {
     return (
         <div style={styles.formComponentWrapper}>
             {
+                // Form Component Loading screen if submitting
                 userLoading || surveyLoading ? <div style={{...styles.formComponent, alignItems: 'center', fontSize: '24px'}}>Sending...</div> :
                 <form 
                     onSubmit={handleSubmit((data) => {
@@ -122,7 +123,7 @@ const FormComponent = ({handleColorTheme}: any) => {
                     <FormInputWrapper>
                         <label htmlFor="username">Username:</label>
                         <input id="username" {...register("username", { 
-                            required: true,
+                            required: "Required",
                             minLength: {
                                 value: 3,
                                 message: "Min 3 characters"
@@ -214,15 +215,15 @@ const styles = {
         flexDirection: 'column' as const,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: '20px',
+        marginRight: window.matchMedia(`(min-width: 800px)`).matches ? '20px' : '0',
     },
     formComponent: {
         display: 'flex',
         flexDirection: 'column' as const,
         justifyContent: 'space-around',
         height: '500px',
-        width: '343px',
-        marginTop: '150px',
+        width: window.matchMedia(`(min-width: 400px)`).matches ? '383px' : '273px',
+        marginTop: '100px',
         padding: '25px',
         backgroundColor: 'lightblue',
         color: 'black',
@@ -264,6 +265,7 @@ const StyledFormButton = styled.button`
     :hover {
         background: white;
         border: 1px solid lavender;
+        cursor: pointer; 
     }
 `
 
