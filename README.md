@@ -16,8 +16,6 @@ The website displays a form that takes in a user survey input and updates the pi
 
 -React Minimal Pie Chart
 
--Redux (Ongoing)
-
 -TypeScript
 
 -Styled Components
